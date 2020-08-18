@@ -1,6 +1,13 @@
 <h1 class="text-center">Proyecto Final</h1>
 <div class="container">
-  <div class="row">
-    <div class="box"></div>
+  <div class="row centerContent" *ngFor="let rows of map">
+    <div class="box" *ngFor="let columns of rows">
+      <div *ngIf="columns == 1" class="red">
+
+      </div>
+      <div *ngIf="columns == 0" class="green">
+
+      </div>
+    </div>
   </div>
 </div>
