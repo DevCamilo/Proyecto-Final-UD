@@ -8,7 +8,6 @@ import { ArchivoService } from './archivo.service'; //Importa el servicio que tr
 })
 export class AppComponent implements OnInit {
   constructor(private arcivho: ArchivoService) { } //Inicializa la variable que trae el archivo 
-  public title: String = 'proyecto-final';
   public map: number[][]; //Inicializa la variable que tendrá la matriz con el mapa
   public globalCounter: number = 0; //Contador global con el numero de movimientos que se han hecho
   public lineCounter: number = 0; //Contador de las lineas del text
@@ -151,20 +150,59 @@ export class AppComponent implements OnInit {
         if (this.orientation == "E") return this.orientation = "S";
         if (this.orientation == "S") return this.orientation = "O";
         if (this.orientation == "O") return this.orientation = "N";
-        console.log("Giro Derecha");
         break;
       case "I":
         if (this.orientation == "N") return this.orientation = "O";
         if (this.orientation == "O") return this.orientation = "S";
         if (this.orientation == "S") return this.orientation = "E";
         if (this.orientation == "E") return this.orientation = "N";
-        console.log("Giro Izquierda");
         break;
     }
   }
 
-  execute() {
-    this.movement(this.instructions[this.globalCounter]);
-    this.globalCounter++;
+  execute() { // Ejecuta los pasos que se encuentran en el arreglo de instrucciones
+    this.checkGame(this.instructions[this.globalCounter]); //Comprueba el estado del juego
+    this.movement(this.instructions[this.globalCounter]); //Pasa cada instrucción a la función de movimiento
+    this.globalCounter++; //Incrementa la variable cada que se llama a la función
+  }
+
+  /**
+   * 
+   * @param e Espera un parametro de avance para comprobar si es posible el movimiento o no
+   */
+  checkGame(e: string) {
+    if (this.globalCounter == this.numOfSteps) { //Comprueba si el contador global alcanzó al numero de pasos 
+      if (this.map[this.goalY][this.goalX] == this.map[this.robotY][this.robotX]) { //Se comprueba si el robot alcanzó la meta
+        alert('Gano');
+      } else {
+        alert('Perdio')
+      }
+    }
+    if (e == "A") {
+      let tempMoveX: number = this.robotX; //Variable temporal para almacenar la posición del robot en x
+      let tempMoveY: number = this.robotY; //Variable temporal para almacenar la posición del robot en y
+      switch (this.orientation) { //Se comprueba cual es la orientación actual del robot
+        case "N": //Si la posición actual es norte
+          tempMoveY -= 1; //Se resta una unidad en la posición del robot en Y para cambiar su posición y hacerlo avanzar hacia arriba
+          break;
+        case "E":
+          tempMoveX += 1; //Se suma una unidad en la posición del robot en X para cambiar su posición y hacerlo avanzar a la derecha
+          break;
+        case "S":
+          tempMoveY += 1; //Se suma una unidad en la posición del robot en Y para cambiar su posición y hacerlo avanzar hacia abajo
+          break;
+        case "O":
+          tempMoveX -= 1; //Se resta una unidad en la posición del robot en X para cambiar su posición y hacerlo avanzar a la izquierda
+          break;
+      }
+      let checkPositionMap = (y, x) => (this.map.hasOwnProperty(y) && this.map[y].hasOwnProperty(x)); //Comprueba si la posición del mapa existe segun los ejex x y y
+      if (checkPositionMap(tempMoveY, tempMoveX)) { //Si la posición del mapa existe
+        if (this.map[tempMoveY][tempMoveX] == 1) { //Comprueba si la dirección del movimiento es igual a la casilla de una bomba
+          alert("Perdio");
+        }
+      } else {
+        alert("Perdio");
+      }
+    }
   }
 }
