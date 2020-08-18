@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ArchivoService } from './archivo.service'; //Importa el servicio que trae el archivo
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'; //Importa el servicio para crear el archvido de respuesta final
 
 @Component({
   selector: 'app-root',
@@ -7,7 +8,7 @@ import { ArchivoService } from './archivo.service'; //Importa el servicio que tr
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  constructor(private arcivho: ArchivoService) { } //Inicializa la variable que trae el archivo 
+  constructor(private arcivho: ArchivoService, private santizer: DomSanitizer) { } //Inicializa la variable que trae el archivo y de la que lo crea
   public map: number[][]; //Inicializa la variable que tendrá la matriz con el mapa
   public globalCounter: number = 0; //Contador global con el numero de movimientos que se han hecho
   public lineCounter: number = 0; //Contador de las lineas del text
@@ -20,6 +21,8 @@ export class AppComponent implements OnInit {
   public orientation: string; //Almacena la orientación con la que inicia el robot
   public numOfSteps: number; //Almacena el numero de pasos para completar el mapa
   public instructions: string[]; //Almacena el arreglo con las instrucciones de movimiento del robot
+  public gameState: number = 0; //Almacena el estado del juego con 0 para en ejecución, 1 para perdido y y 2 para ganado
+  public fileUrl: SafeResourceUrl; //Almacena la dirección donde se descargará el archivo con la respuesta final del programa
 
   ngOnInit() { //Se ejecuta cuando el componente es cargado
     this.arcivho.getArchivo().subscribe((data: String) => { //Obtiene la carga del archivo
@@ -160,12 +163,6 @@ export class AppComponent implements OnInit {
     }
   }
 
-  execute() { // Ejecuta los pasos que se encuentran en el arreglo de instrucciones
-    this.checkGame(this.instructions[this.globalCounter]); //Comprueba el estado del juego
-    this.movement(this.instructions[this.globalCounter]); //Pasa cada instrucción a la función de movimiento
-    this.globalCounter++; //Incrementa la variable cada que se llama a la función
-  }
-
   /**
    * 
    * @param e Espera un parametro de avance para comprobar si es posible el movimiento o no
@@ -173,9 +170,9 @@ export class AppComponent implements OnInit {
   checkGame(e: string) {
     if (this.globalCounter == this.numOfSteps) { //Comprueba si el contador global alcanzó al numero de pasos 
       if (this.map[this.goalY][this.goalX] == this.map[this.robotY][this.robotX]) { //Se comprueba si el robot alcanzó la meta
-        alert('Gano');
+        this.gameState = 2; //Se cambia el estado del juego a ganado
       } else {
-        alert('Perdio')
+        this.gameState = 1; //Se cambia el estado del juego a perdido
       }
     }
     if (e == "A") {
@@ -198,11 +195,38 @@ export class AppComponent implements OnInit {
       let checkPositionMap = (y, x) => (this.map.hasOwnProperty(y) && this.map[y].hasOwnProperty(x)); //Comprueba si la posición del mapa existe segun los ejex x y y
       if (checkPositionMap(tempMoveY, tempMoveX)) { //Si la posición del mapa existe
         if (this.map[tempMoveY][tempMoveX] == 1) { //Comprueba si la dirección del movimiento es igual a la casilla de una bomba
-          alert("Perdio");
+          this.gameState = 1; //Se cambia el estado del juego a perdido
         }
       } else {
-        alert("Perdio");
+        this.gameState = 1; //Se cambia el estado del juego a perdido
       }
     }
+    if (this.gameState == 2) {
+      alert("Gano");
+      this.genereteFile(this.gameState); //Se llama la función que genera el archivo con la letra C
+    } else if (this.gameState == 1) {
+      alert("Perdio");
+      this.genereteFile(this.gameState); //Se llama la función que genera el archivo con la letra E
+    }
+  }
+
+  /**
+   * 
+   * @param e El parametro que retorna el tipo de archivo que se va a descargar, 1 para C y 2 para E
+   */
+  genereteFile(e: number) {
+    let doc: Blob; //Se inicializa una variable de tipo Blob para generar el archivo
+    if(e == 2){ //Se comprueba el estado del juego que llegó
+      doc = new Blob(["C"], { type: "application/octet-stream" });
+    } else {
+      doc = new Blob(["E"], { type: "application/octet-stream" });
+    }
+    this.fileUrl = this.santizer.bypassSecurityTrustResourceUrl(window.URL.createObjectURL(doc)); //Se crea la URL con el link para generar el archivo
+  }
+
+  execute() { // Ejecuta los pasos que se encuentran en el arreglo de instrucciones
+    this.checkGame(this.instructions[this.globalCounter]); //Comprueba el estado del juego
+    this.movement(this.instructions[this.globalCounter]); //Pasa cada instrucción a la función de movimiento
+    this.globalCounter++; //Incrementa la variable cada que se llama a la función
   }
 }

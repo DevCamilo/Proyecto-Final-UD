@@ -2,10 +2,13 @@
 <div class="container">
   <div class="row centerContent" *ngFor="let rows of map">
     <div class="box" *ngFor="let columns of rows">
+      <div *ngIf="columns == 0">
+
+      </div>
       <div *ngIf="columns == 1" class="red">
 
       </div>
-      <div *ngIf="columns == 0" class="blue">
+      <div *ngIf="columns == 2" class="blue">
 
       </div>
       <div *ngIf="columns == 3" class="green">
@@ -16,5 +19,6 @@
 </div>
 <br>
 <div class="container centerContent">
-  <button type="button" class="btn btn-primary" (click)="execute()">Movimiento</button>
+  <button *ngIf="gameState == 0" type="button" class="btn btn-primary" (click)="execute()">Movimiento</button>
+  <a *ngIf="gameState == 1 || gameState == 2" [href]="fileUrl" download="ROBCOM.txt">Descargar Archivo</a>
 </div>
