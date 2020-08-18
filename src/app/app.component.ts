@@ -24,7 +24,7 @@ export class AppComponent implements OnInit {
   public gameState: number = 0; //Almacena el estado del juego con 0 para en ejecución, 1 para perdido y y 2 para ganado
   public fileUrl: SafeResourceUrl; //Almacena la dirección donde se descargará el archivo con la respuesta final del programa
 
-  ngOnInit() { //Se ejecuta cuando el componente es cargado
+  public ngOnInit(): void { //Se ejecuta cuando el componente es cargado
     this.arcivho.getArchivo().subscribe((data: String) => { //Obtiene la carga del archivo
       let localColumnCounter: number = 0; // Cuentas las columnas de cada linea para llenar el mapa
       let countPositionRobot: number = 0; //Contador para obtener las posiciones de inicio del robot
@@ -111,13 +111,13 @@ export class AppComponent implements OnInit {
    * @param e Dirección del movimiento D (Derecha), I(Izquierda), o A(Avanzar) junto los putnos cardinales N(Norte), E(Este), O(Oeste) y S(Sur)
    *
    */
-  movement(e: string) {
+  public movement(e: string): void {
     switch (e) { //Se comprueba la instrccución que se recivió
       case "D":
-        this.girar(e);
+        this.turn(e);
         break;
       case "I":
-        this.girar(e);
+        this.turn(e);
         break;
       case "A":
         let previousStepX: number = this.robotX; //Almacena la posición previa en la que se encontraba el robot en el eje x
@@ -149,7 +149,7 @@ export class AppComponent implements OnInit {
    * 
    * @param e Dirección a la cual se quiere orientar el robot D(Derecha) o I(Izquierda)
    */
-  girar(e: string) {
+  public turn(e: string): string {
     switch (e) {
       case "D": //Se validan las posiciones para reemplazarlas por la siguiente segun el orden de giro y dar la nueva orientación
         if (this.orientation == "N") return this.orientation = "E";
@@ -170,7 +170,7 @@ export class AppComponent implements OnInit {
    * 
    * @param e Espera un parametro de avance para comprobar si es posible el movimiento o no
    */
-  checkGame(e: string) {
+  public checkGame(e: string): void {
     if (this.globalCounter == this.numOfSteps) { //Comprueba si el contador global alcanzó al numero de pasos 
       if (this.map[this.goalY][this.goalX] == this.map[this.robotY][this.robotX]) { //Se comprueba si el robot alcanzó la meta
         this.gameState = 2; //Se cambia el estado del juego a ganado
@@ -195,7 +195,7 @@ export class AppComponent implements OnInit {
           tempMoveX -= 1; //Se resta una unidad en la posición del robot en X para cambiar su posición y hacerlo avanzar a la izquierda
           break;
       }
-      let checkPositionMap = (y, x) => (this.map.hasOwnProperty(y) && this.map[y].hasOwnProperty(x)); //Comprueba si la posición del mapa existe segun los ejex x y y
+      let checkPositionMap = (y, x): boolean => (this.map.hasOwnProperty(y) && this.map[y].hasOwnProperty(x)); //Comprueba si la posición del mapa existe segun los ejex x o y
       if (checkPositionMap(tempMoveY, tempMoveX)) { //Si la posición del mapa existe
         if (this.map[tempMoveY][tempMoveX] == 1) { //Comprueba si la dirección del movimiento es igual a la casilla de una bomba
           this.gameState = 1; //Se cambia el estado del juego a perdido
@@ -205,10 +205,10 @@ export class AppComponent implements OnInit {
       }
     }
     if (this.gameState == 2) {
-      alert("Gano");
+      alert("Correcto");
       this.genereteFile(this.gameState); //Se llama la función que genera el archivo con la letra C
     } else if (this.gameState == 1) {
-      alert("Perdio");
+      alert("Error");
       this.genereteFile(this.gameState); //Se llama la función que genera el archivo con la letra E
     }
   }
@@ -217,9 +217,9 @@ export class AppComponent implements OnInit {
    * 
    * @param e El parametro que retorna el tipo de archivo que se va a descargar, 1 para C y 2 para E
    */
-  genereteFile(e: number) {
+  public genereteFile(e: number): void {
     let doc: Blob; //Se inicializa una variable de tipo Blob para generar el archivo
-    if(e == 2){ //Se comprueba el estado del juego que llegó
+    if (e == 2) { //Se comprueba el estado del juego que llegó
       doc = new Blob(["C"], { type: "application/octet-stream" });
     } else {
       doc = new Blob(["E"], { type: "application/octet-stream" });
@@ -227,7 +227,7 @@ export class AppComponent implements OnInit {
     this.fileUrl = this.santizer.bypassSecurityTrustResourceUrl(window.URL.createObjectURL(doc)); //Se crea la URL con el link para generar el archivo
   }
 
-  execute() { // Ejecuta los pasos que se encuentran en el arreglo de instrucciones
+  public execute(): void { // Ejecuta los pasos que se encuentran en el arreglo de instrucciones
     this.checkGame(this.instructions[this.globalCounter]); //Comprueba el estado del juego
     this.movement(this.instructions[this.globalCounter]); //Pasa cada instrucción a la función de movimiento
     this.globalCounter++; //Incrementa la variable cada que se llama a la función
