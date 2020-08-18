@@ -6,13 +6,16 @@
 
       </div>
       <div *ngIf="columns == 1" class="red">
-
+        <img height="100px" width="100px" src="../assets/img/bomb.png">
       </div>
       <div *ngIf="columns == 2" class="blue">
-
+        <img *ngIf="orientation == 'N'" height="100px" width="100px" src="../assets/img/north.png">
+        <img *ngIf="orientation == 'E'" height="100px" width="100px" src="../assets/img/east.png">
+        <img *ngIf="orientation == 'S'" height="100px" width="100px" src="../assets/img/south.png">
+        <img *ngIf="orientation == 'O'" height="100px" width="100px" src="../assets/img/west.png">
       </div>
       <div *ngIf="columns == 3" class="green">
-
+        <img height="100px" width="100px" src="../assets/img/goal.png">
       </div>
     </div>
   </div>

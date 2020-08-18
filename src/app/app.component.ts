@@ -120,6 +120,8 @@ export class AppComponent implements OnInit {
         this.girar(e);
         break;
       case "A":
+        let previousStepX: number = this.robotX; //Almacena la posición previa en la que se encontraba el robot en el eje x
+        let previousStepY: number = this.robotY; //Almacena la posición previa en la que se encontraba el robot en el eje y
         switch (this.orientation) { //Se comprueba cual es la orientación actual del robot
           case "N": //Si la posición actual es norte
             this.robotY -= 1; //Se resta una unidad en la posición del robot en Y para cambiar su posición y hacerlo avanzar hacia arriba
@@ -134,6 +136,7 @@ export class AppComponent implements OnInit {
             this.robotX -= 1; //Se resta una unidad en la posición del robot en X para cambiar su posición y hacerlo avanzar a la izquierda
             break;
         }
+        this.map[previousStepY][previousStepX] = 0; //Se actualiza la posición anterior del robot para limpiarla
         this.map[this.robotY][this.robotX] = 2; //Se actualiza la posición del robot con las nuevas coordenadas
         break;
     }
