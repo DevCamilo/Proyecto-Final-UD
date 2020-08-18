@@ -10,6 +10,7 @@ export class AppComponent implements OnInit {
   constructor(private arcivho: ArchivoService) { } //Inicializa la variable que trae el archivo 
   public title: String = 'proyecto-final';
   public map: number[][]; //Inicializa la variable que tendrá la matriz con el mapa
+  public globalCounter: number = 0; //Contador global con el numero de movimientos que se han hecho
   public lineCounter: number = 0; //Contador de las lineas del text
   public m: number; //Almacena el numero de las filas de las matriz del mapa 
   public n: number; //Almacena el numero de las columnas de la matriz del mapa
@@ -85,22 +86,85 @@ export class AppComponent implements OnInit {
       this.map = localMatrizMap; //Se iguala el mapa local con el global
       this.map[this.robotY][this.robotX] = 2; //Se asigna la posición de inicio del robot
       this.map[this.goalY][this.goalX] = 3; //Se adigna la posición de la meta
-      this.instructions = localArrayInstrucctions;
+      this.instructions = localArrayInstrucctions; // Se iguala el arreglo de instrucciones local con el global
+      // Visualización de los datos capturados por la consola del navegador
+      /* 
       for (let i = 0; i < this.m; i++) {
         for (let j = 0; j < this.n; j++) {
           console.log("Mapa[" + i + "][" + j + "]" + this.map[i][j]);
         }
         console.log(" ");
       }
+      */
       console.log("Robot X:" + this.robotX);
       console.log("Robot Y:" + this.robotY);
       console.log("Orientación:" + this.orientation);
       console.log("Numero de pasos:" + this.numOfSteps);
       console.log("Meta X:" + this.goalX);
       console.log("Meta Y:" + this.goalY);
-      for (let i = 0; i < this.instructions.length; i++) {
-        console.log(this.instructions[i]);
-      }
     });
+  }
+  /**
+   * 
+   * @param e Dirección del movimiento D (Derecha), I(Izquierda), o A(Avanzar) junto los putnos cardinales N(Norte), E(Este), O(Oeste) y S(Sur)
+   *
+   */
+  movement(e: string) {
+    switch (e) { //Se comprueba la instrccución que se recivió
+      case "D":
+        this.girar(e);
+        break;
+      case "I":
+        this.girar(e);
+        break;
+      case "A":
+        switch (this.orientation) { //Se comprueba cual es la orientación actual del robot
+          case "N": //Si la posición actual es norte
+            this.robotY -= 1; //Se resta una unidad en la posición del robot en Y para cambiar su posición y hacerlo avanzar hacia arriba
+            break;
+          case "E":
+            this.robotX += 1; //Se suma una unidad en la posición del robot en X para cambiar su posición y hacerlo avanzar a la derecha
+            break;
+          case "S":
+            this.robotY += 1; //Se suma una unidad en la posición del robot en Y para cambiar su posición y hacerlo avanzar hacia abajo
+            break;
+          case "O":
+            this.robotX -= 1; //Se resta una unidad en la posición del robot en X para cambiar su posición y hacerlo avanzar a la izquierda
+            break;
+        }
+        this.map[this.robotY][this.robotX] = 2; //Se actualiza la posición del robot con las nuevas coordenadas
+        break;
+    }
+    console.log("Robot X:" + this.robotX);
+    console.log("Robot Y:" + this.robotY);
+    console.log("Orientación:" + this.orientation);
+  }
+
+  /**
+   * 
+   * @param e Dirección a la cual se quiere orientar el robot D(Derecha) o I(Izquierda)
+   */
+  girar(e: string) {
+    switch (e) {
+      case "D": //Se validan las posiciones para reemplazarlas por la siguiente segun el orden de giro y dar la nueva orientación
+        if (this.orientation == "N") return this.orientation = "E";
+        if (this.orientation == "E") return this.orientation = "S";
+        if (this.orientation == "S") return this.orientation = "O";
+        if (this.orientation == "O") return this.orientation = "N";
+        console.log("Giro Derecha");
+        break;
+      case "I":
+        if (this.orientation == "N") return this.orientation = "O";
+        if (this.orientation == "O") return this.orientation = "S";
+        if (this.orientation == "S") return this.orientation = "E";
+        if (this.orientation == "E") return this.orientation = "N";
+        console.log("Giro Izquierda");
+        break;
+    }
+  }
+
+  execute() {
+    this.movement(this.instructions[this.globalCounter]);
+    this.globalCounter++;
   }
 }
